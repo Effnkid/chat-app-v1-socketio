@@ -28,11 +28,22 @@ app.use('/api', require('./api'));
 
 //socket-io
 io.on('connection', (socket) => {
-	console.log('a user connected');
-	socket.on('chat message', (msg) => {
-		console.log('message: ' + msg);
-		io.emit('chat message recieve', msg);
+	console.log(`a user connected`);
+
+	socket.on('join room', (data) => {
+		socket.join(data);
 	});
+
+	socket.on('chat message', (data) => {
+		console.log(
+			'message: ' + data.name + ': ' + data.message + ' ' + data.room
+		);
+
+		io.to(data.room).emit('chat message recieve', data);
+	});
+	// socket.on(`chat message recieve`, (data) => {
+	// });
+
 	socket.on('disconnect', () => {
 		console.log('user disconnected');
 	});
