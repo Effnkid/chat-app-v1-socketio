@@ -3,7 +3,7 @@ import io from 'socket.io-client';
 import { useLocation } from 'react-router-dom';
 import moment from 'moment';
 
-const socket = io.connect(`https://bab0-71-115-0-79.ngrok.io/`, {
+const socket = io.connect(`http://localhost:3000/`, {
 	auth: { token: 'levar' },
 });
 
@@ -45,30 +45,33 @@ const Chat = () => {
 	};
 
 	const renderChat = () => {
-		return chat.map(({ name, col, message, time }, idx) => (
-			<li key={idx}>
-				<div className="chat-container" id={name === name ? 'me' : 'other'}>
-					<img src="socketio.png" alt="" id="user-img" />
-					<span id="chat-name" style={{ color: col }}>{`${name} : `}</span>
-					<span id="chat-message" style={{ color: col }}>
+		return chat.map(({ name: myName, col, message, time }, idx) => (
+			<li key={idx} id={myName === name ? 'me' : 'other'}>
+				<div className="chat-container">
+					<p id="chat-message" style={{ color: col }}>
 						{message}
-					</span>
+					</p>
+					<div className="user-container">
+						<img src="socketio.png" alt="" id="user-img" />
+						<p id="chat-name" style={{ color: col }}>{`${myName}  `}</p>
+					</div>
 				</div>
 				<p id="moments-ago">{moment(time).fromNow()}</p>
 			</li>
 		));
 	};
-
 	React.useEffect(() => {
 		socket.on('chat message recieve', (data) => {
 			const { name, col, message, room, time } = data;
 			setChat([...chat, { name, col, message, room, time }]);
-			window.scrollTo(0, document.body.scrollHeight);
 		});
 	});
+	React.useEffect(() => {
+		window.scrollTo(0, document.body.scrollHeight);
+	}, [chat]);
 
 	return (
-		<div>
+		<div id="live-chat">
 			<ul id="messages">{renderChat()}</ul>
 			<form id="form" onSubmit={handleSubmit}>
 				<select
